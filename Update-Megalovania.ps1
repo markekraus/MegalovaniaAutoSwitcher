@@ -38,6 +38,9 @@ $Index = -1
 
 $SoundFiles = Get-ChildItem -Path $SourcePath -Filter "*.ogg"
 
+$BaseArray = 0..($SoundFiles.Count - 1)
+[System.Collections.Generic.List[Int32]]$AvailableList = $BaseArray.Clone()
+
 while ($true) {
     try {
         $Result = Get-Content $IniFile -ErrorAction Stop | Select-String "gameover"
@@ -52,7 +55,11 @@ while ($true) {
             Write-Host "Set LastCount to $LastCount"
             if($Random) {
                 Write-Host 'Random'
-                $Index = Get-Random -Minimum 0 -Maximum ($SoundFiles.Count - 1)
+                $Index = $AvailableList | Get-Random
+                $null = $AvailableList.Remove($Index)
+                if($AvailableList.Count -eq 0){
+                    [System.Collections.Generic.List[Int32]]$AvailableList = $BaseArray.Clone()
+                }
             } elseif ($Index -ge $SoundFiles.Count - 1) {
                 Write-Host 'Rewind'
                 $Index = 0
